@@ -1,6 +1,11 @@
 # Twitter Raffle
 
-Create a `.env` file containing the twitter developer token and credentials.
+This is a little command line utility to get a random user for twitter raffles.
+
+## How to use
+
+Create a `.env` file containing the twitter developer token and credentials. You can get those
+credentials on the [Twitter Developer Portal](https://developer.twitter.com/)
 
 ```env
 APP_ID=
@@ -8,8 +13,6 @@ API_KEY=
 API_KEY_SECRET=
 BEARER_TOKEN=
 ```
-
-## How to use
 
 Examples:
 ```bash
