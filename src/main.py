@@ -7,13 +7,13 @@ import random
 import cli
 import csv
 
-args = cli.parse_arguments()
+args = None
 
-def save_json(users: User, path: str):
+def save_json(users: list[User], path: str):
 	with open(path, 'w', encoding='UTF-8') as f:
 		json.dump(users, f, cls=CustomEncoder, ensure_ascii=False)
 
-def save_csv(users: User, path: str):
+def save_csv(users: list[User], path: str):
 	file = open(path, 'w', encoding='UTF-8', newline='') # newline is to avoid writing whitespace
 	writer = csv.writer(file)
 
@@ -26,37 +26,38 @@ def save_csv(users: User, path: str):
 
 	file.close()
 
-def print_users(users: User):
+def print_users(users: list[User]):
 	rprint('\n[yellow bold]Id                        Username                  Name ')
 	rprint('')
 
 	for user in users:
 		rprint(f'{user.id:<25} {user.username:<25} {user.name}')
+	
+	rprint('')
+
+def fill_or_intersect(set1: set, set2: set):
+	if len(set1) == 0:
+		return set2
+	else:
+		return set1.intersection(set2)
 
 def main():
-	dotenv.load_dotenv()
 
-	users = []
+	users = set()
 
 	# space seperated list of conditions to a set
 	conditions = set(args.conditions.split(' '))
 
-	if conditions == {'retweet'}:
-		users = twitterService.get_retweeted_by(args.id)
+	if 'retweet' in conditions:
+		users = fill_or_intersect(users, twitterService.get_retweeted_by(args.id))
 
-	elif conditions == {'like'}:
-		users = twitterService.get_liked_by(args.id)
+	if 'like' in conditions:
+		users = fill_or_intersect(users, twitterService.get_liked_by(args.id))
 
-	elif conditions == {'like', 'retweet'}:
-		retweet_users = twitterService.get_retweeted_by(args.id)
-		like_users = twitterService.get_liked_by(args.id)
-
-		for user in retweet_users:
-			if user in like_users:
-				users.append(user)
-	else:
-		rprint(f'[red]Unknown conditions \'{args.conditions}\'')
-		exit(1)
+	if 'reply' in conditions:
+		rprint('[yellow bold]The condition \'reply\' is limited to the last 7 days, this might ignore some users.')
+		tweet = twitterService.get_tweet(args.id)
+		users = fill_or_intersect(users, twitterService.get_replied_by(tweet.conversation_id))
 
 	rprint(f'[green]Collected {len(users)} users')
 
@@ -65,7 +66,7 @@ def main():
 		if args.out == 'json':
 			file = args.file if args.file else './users.json'
 			print('Saving users to ' + file)
-			save_json(users, file)
+			save_json(tuple(users), file)
 			rprint('[green]Saved!')
 			
 		elif args.out == 'csv':
@@ -82,8 +83,10 @@ def main():
 			exit(1)
 	
 	elif args.subparser == 'pick':
-		choice = random.choice(users)
-		rprint(f"[yellow bold]\n✨{choice}\n")
+		choice = random.choice(tuple(users))
+		rprint(f"[yellow bold]\n✨ {choice}\n")
 
 if(__name__ == '__main__'):
+	args = cli.parse_arguments()
+	dotenv.load_dotenv()
 	main()

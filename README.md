@@ -5,7 +5,7 @@ This is a little command line utility to get a random user for twitter raffles.
 ## How to use
 
 Create a `.env` file containing the twitter developer token and credentials. You can get those
-credentials on the [Twitter Developer Portal](https://developer.twitter.com/)
+credentials on the [Twitter Developer Portal](https://developer.twitter.com/).
 
 ```env
 APP_ID=
@@ -18,7 +18,7 @@ Examples:
 ```bash
 python ./src/main.py --id="<tweet_id>" --conditions="like" list
 python ./src/main.py --id="<tweet_id>" --conditions="like retweet" pick
-python ./src/main.py --id="<tweet_id>" --conditions="retweet like" list --out="csv"
+python ./src/main.py --id="<tweet_id>" --conditions="like retweet reply" list --out="csv"
 ```
 
 ### Modes
@@ -31,7 +31,8 @@ python ./src/main.py --id="<tweet_id>" --conditions="retweet like" list --out="c
 
 `id`: required, The tweet id, you can find it at the end of the tweet url.
 
-`conditions`: required, Conditions of the raffle, current options are `like` and `retweet`.
+`conditions`: required, Conditions of the raffle, current options are `like`, `retweet` and `reply`.
+**WARNING**, `reply` is limited to user replies from the last 7 days.
 
 `out`: Chosses the output format for the list , options: `json`, `csv`, `stdout`.
 
